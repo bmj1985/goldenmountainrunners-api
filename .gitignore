@@ -10,6 +10,8 @@ firebase-debug.log*
 .firebase/
 
 # Firebase config
+goldenmountainrunnersco-firebase-adminsdk-ml7ce-10558a8c91.json
+src/goldenmountainrunnersco-firebase-adminsdk-ml7ce-10558a8c91.json
 
 # Uncomment this if you'd like others to create their own Firebase project.
 # For a team working on the same Firebase project(s), it is recommended to leave

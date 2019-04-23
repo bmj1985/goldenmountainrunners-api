@@ -1,4 +1,13 @@
 const functions = require("firebase-functions")
+const admin = require("firebase-admin")
+// const serviceAccount = fs(
+//   "./goldenmountainrunnersco-firebase-adminsdk-ml7ce-10558a8c91.json"
+// )
+
+admin.initializeApp({
+  credential: admin.credential.applicationDefault(),
+  databaseURL: "https://goldenmountainrunnersco.firebaseio.com"
+})
 
 const express = require("express")
 const path = require("path")
@@ -7,45 +16,41 @@ const cookieParser = require("cookie-parser")
 const bodyParser = require("body-parser")
 const cors = require("cors")
 
+const main = express()
+
+main.set("views", "./views")
+main.set("view-engine", "jade")
+
 const slackInvite = require("./routes/slackInvite")
+const app = require("./routes/app")
 
-const app = express()
+main.use("/api/v1", app)
+main.use("/slackInvite/", slackInvite)
+main.use(bodyParser.json())
+main.use(bodyParser.urlencoded({ extended: false }))
+main.use(logger("dev"))
+main.use(cookieParser())
+main.use(express.static(path.join(__dirname, "public")))
+main.use(cors({ origin: true }))
 
-app.use(logger("dev"))
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(cookieParser())
-app.use(express.static(path.join(__dirname, "public")))
-app.use(cors({ origin: true }))
-
-app.get("/api/v1", (req, res) => {
-  res.json({
-    message: "Welcome to version one of the Golden Mountain runners api"
-  })
+main.get("/v1", (req, res) => {
+  res.send("Welcome to version one of the Golden Mountain runners api")
 })
 
-// app.use("/slackInvite/", slackInvite)
-
-interface Error {
-  status?: number
-}
-
 // catch 404 and forward to error handler
-app.use((req, res, next) => {
+main.use((req, res, next) => {
   const err = new Error("Not Found")
+  // @ts-ignore
   err.status = 404
   next(err)
 })
 
 // error handler
-app.use((err, req, res, next) => {
-  // set locals, only providing error in development
+main.use((err, req, res, next) => {
   res.locals.message = err.message
   res.locals.error = req.app.get("env") === "development" ? err : {}
-
-  // render the error page
   res.status(err.status || 500)
   res.render("error")
 })
 
-module.exports = app
+export const webApi = functions.https.onRequest(main)
