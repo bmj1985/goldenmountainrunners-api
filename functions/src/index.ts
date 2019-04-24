@@ -1,8 +1,5 @@
 const functions = require("firebase-functions")
 const admin = require("firebase-admin")
-// const serviceAccount = fs(
-//   "./goldenmountainrunnersco-firebase-adminsdk-ml7ce-10558a8c91.json"
-// )
 
 admin.initializeApp({
   credential: admin.credential.applicationDefault(),
@@ -31,7 +28,7 @@ main.use(bodyParser.urlencoded({ extended: false }))
 main.use(logger("dev"))
 main.use(cookieParser())
 main.use(express.static(path.join(__dirname, "public")))
-main.use(cors({ origin: true }))
+main.use(cors())
 
 main.get("/v1", (req, res) => {
   res.send("Welcome to version one of the Golden Mountain runners api")

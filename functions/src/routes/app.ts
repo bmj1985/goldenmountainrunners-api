@@ -5,6 +5,7 @@ const firebaseHelper = require("firebase-functions-helper")
 const express = require("express")
 const router = express.Router()
 const request = require("request")
+const cors = require("cors")
 
 firebase.initializeApp({
   apiKey: functions.config().gmr.key,
@@ -16,12 +17,27 @@ const db = firebase.firestore()
 
 const eventsCollection = "events"
 
-// Add new event
+// const whitelist = [
+//   "http://localhost:8080",
+//   "https://www.goldenmountainrunners.com"
+// ]
+// const corsOptions = {
+//   origin: function(origin, callback) {
+//     console.log("ORIGIN (app):", origin)
+//     if (whitelist.indexOf(origin) !== -1 || !origin) {
+//       callback(null, true)
+//     } else {
+//       callback(new Error("Not allowed by CORS"))
+//     }
+//   }
+// }
+
+router.use(cors())
+
 router.post("/events", (req, res) => {
   firebaseHelper.firestore.createNewDocument(db, eventsCollection, req.body)
   res.send("Create a new event")
 })
-// Update new event
 router.patch("/events/:eventId", (req, res) => {
   firebaseHelper.firestore.updateDocument(
     db,
@@ -31,19 +47,16 @@ router.patch("/events/:eventId", (req, res) => {
   )
   res.send("Update a new event")
 })
-// View a event
 router.get("/events/:eventId", (req, res) => {
   firebaseHelper.firestore
     .getDocument(db, eventsCollection, req.params.eventId)
     .then(doc => res.status(200).send(doc))
 })
-// View all events
 router.get("/events", (req, res) => {
   firebaseHelper.firestore
     .backup(db, eventsCollection)
     .then(data => res.status(200).send(data))
 })
-// Delete a event
 router.delete("/events/:eventId", (req, res) => {
   firebaseHelper.firestore.deleteDocument(
     db,
